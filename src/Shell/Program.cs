@@ -7,7 +7,12 @@
             Console.Write("$ ");
 
             var command = Console.ReadLine();
-            Console.WriteLine($"{command}: command not found");
+            if (command == "exit")
+                break;
+            else if (command!.StartsWith("echo "))
+                Console.WriteLine(command[5..]);
+            else
+                Console.WriteLine($"{command}: command not found");
         }
     }
 }
