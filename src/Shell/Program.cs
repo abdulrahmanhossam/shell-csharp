@@ -16,14 +16,22 @@
                 continue;
 
             if (command == "exit" || command.StartsWith("exit "))
+            {
                 break;
+            }
             else if (command!.StartsWith("echo "))
+            {
+
                 Console.WriteLine(command[5..]);
+            }
             else if (command.StartsWith("type "))
             {
                 string target = command[5..];
+
                 if (validBuiltinCommand.Contains(target))
+                {
                     Console.WriteLine($"{target} is a shell builtin");
+                }
                 else
                 {
                     string foundPath = null!;
@@ -34,8 +42,17 @@
 
                         if (File.Exists(fullPath))
                         {
-                            foundPath = fullPath;
-                            break;
+                            var fileMode = File.GetUnixFileMode(fullPath);
+
+                            bool isExecutable = fileMode.HasFlag(UnixFileMode.UserExecute) ||
+                                                fileMode.HasFlag(UnixFileMode.GroupExecute) ||
+                                                fileMode.HasFlag(UnixFileMode.OtherExecute);
+
+                            if (isExecutable)
+                            {
+                                foundPath = fullPath;
+                                break;
+                            }
                         }
                     }
                     if (foundPath != null)
@@ -50,7 +67,9 @@
 
             }
             else
+            {
                 Console.WriteLine($"{command}: command not found");
+            }
         }
     }
 }
