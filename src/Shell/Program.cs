@@ -2,7 +2,9 @@
 {
     static void Main()
     {
-        var validCommand = new[] { "echo", "exit", "type" };
+        string[] validBuiltinCommand = ["echo", "exit", "type"];
+        string pathEnv = Environment.GetEnvironmentVariable("PATH") ?? "";
+        string[] paths = pathEnv.Split(Path.PathSeparator);
 
         while (true)
         {
@@ -20,12 +22,33 @@
             else if (command.StartsWith("type "))
             {
                 string target = command[5..];
-                if (validCommand.Contains(target))
+                if (validBuiltinCommand.Contains(target))
                     Console.WriteLine($"{target} is a shell builtin");
                 else
-                    Console.WriteLine($"{target}: not found");
-            }
+                {
+                    string foundPath = null!;
 
+                    foreach (var path in paths)
+                    {
+                        string fullPath = Path.Combine(path, target);
+
+                        if (File.Exists(fullPath))
+                        {
+                            foundPath = fullPath;
+                            break;
+                        }
+                    }
+                    if (foundPath != null)
+                    {
+                        Console.WriteLine($"{target} is {foundPath}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{target}: not found");
+                    }
+                }
+
+            }
             else
                 Console.WriteLine($"{command}: command not found");
         }
